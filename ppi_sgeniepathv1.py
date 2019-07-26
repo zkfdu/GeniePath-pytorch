@@ -5,6 +5,8 @@ import torch
 from torch_geometric.datasets import PPI
 from torch_geometric.data import DataLoader
 from torch_geometric.nn import GATConv
+from torch_geometric.nn import AGNNConv
+
 from sklearn.metrics import f1_score
 
 parser = argparse.ArgumentParser()
@@ -24,16 +26,32 @@ dim = 256
 lstm_hidden = 256
 layer_num = 4
 
+class agnnn(torch.nn.Module):
+    def __init__(self,in_dim,out_dim):
+        super(agnnn, self).__init__()
+        self.lin1 = torch.nn.Linear(in_dim, 16)
+        self.prop1 = AGNNConv(requires_grad=False)
+        self.prop2 = AGNNConv(requires_grad=True)
+        self.lin2 = torch.nn.Linear(16, out_dim)
 
+    def forward(self):
+        x = F.dropout(data.x, training=self.training)
+        x = F.relu(self.lin1(x))
+        x = self.prop1(x, edge_index)
+        x = self.prop2(x, edge_index)
+        x = F.dropout(x, training=self.training)
+        x = self.lin2(x)
+        return x
+        
 class Breadth(torch.nn.Module):
     def __init__(self, in_dim, out_dim):
         super(Breadth, self).__init__()
-        self.gatconv = GATConv(in_dim, out_dim, heads=1)#这里in_dim和out_dim都=dim=256
-        # self.gatconv = GATConv(256, 256, heads=1)
+        self.gatconv = AGNNConv(requires_grad=True)
 
     def forward(self, x, edge_index):
         x = torch.tanh(self.gatconv(x, edge_index))
         return x
+
 
 
 class Depth(torch.nn.Module):
