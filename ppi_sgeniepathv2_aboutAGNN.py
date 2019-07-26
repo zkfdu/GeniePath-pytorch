@@ -54,11 +54,11 @@ class Breadth(torch.nn.Module):
         # self.gatconv = AGNNConv(requires_grad=True)
 
     def forward(self, x, edge_index):
-        x = F.dropout(x, training=self.training)
+#         x = F.dropout(x, training=self.training)
         x = F.relu(self.lin1(x))
         x = self.prop1(x, edge_index)
         x = self.prop2(x, edge_index)
-        x = F.dropout(x, training=self.training)
+#         x = F.dropout(x, training=self.training)
         x = self.lin2(x)
         # x = torch.tanh(self.gatconv(x, edge_index))
         x = torch.tanh(x)
