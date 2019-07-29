@@ -26,22 +26,22 @@ dim = 256
 lstm_hidden = 256
 layer_num = 4
 
-class agnnn(torch.nn.Module):
-    def __init__(self,in_dim,out_dim):
-        super(agnnn, self).__init__()
-        self.lin1 = torch.nn.Linear(in_dim, 16)
-        self.prop1 = AGNNConv(requires_grad=False)
-        self.prop2 = AGNNConv(requires_grad=True)
-        self.lin2 = torch.nn.Linear(16, out_dim)
+# class agnnn(torch.nn.Module):
+#     def __init__(self,in_dim,out_dim):
+#         super(agnnn, self).__init__()
+#         self.lin1 = torch.nn.Linear(in_dim, 16)
+#         self.prop1 = AGNNConv(requires_grad=False)
+#         self.prop2 = AGNNConv(requires_grad=True)
+#         self.lin2 = torch.nn.Linear(16, out_dim)
 
-    def forward(self):
-        x = F.dropout(data.x, training=self.training)
-        x = F.relu(self.lin1(x))
-        x = self.prop1(x, edge_index)
-        x = self.prop2(x, edge_index)
-        x = F.dropout(x, training=self.training)
-        x = self.lin2(x)
-        return x
+#     def forward(self):
+#         x = F.dropout(data.x, training=self.training)
+#         x = F.relu(self.lin1(x))
+#         x = self.prop1(x, edge_index)
+#         x = self.prop2(x, edge_index)
+#         x = F.dropout(x, training=self.training)
+#         x = self.lin2(x)
+#         return x
         
 class Breadth(torch.nn.Module):
     def __init__(self, in_dim, out_dim):

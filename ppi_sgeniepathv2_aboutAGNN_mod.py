@@ -1,3 +1,4 @@
+
 import argparse
 import os.path as osp
 
@@ -5,6 +6,8 @@ import torch
 from torch_geometric.datasets import PPI
 from torch_geometric.data import DataLoader
 from torch_geometric.nn import GATConv
+from torch_geometric.nn import AGNNConv
+import torch.nn.functional as F
 from sklearn.metrics import f1_score
 
 parser = argparse.ArgumentParser()
@@ -24,16 +27,43 @@ dim = 256
 lstm_hidden = 256
 layer_num = 4
 
+# class agnnn(torch.nn.Module):
+#     def __init__(self,in_dim,out_dim):
+#         super(agnnn, self).__init__()
+#         self.lin1 = torch.nn.Linear(in_dim, 16)
+#         self.prop1 = AGNNConv(requires_grad=False)
+#         self.prop2 = AGNNConv(requires_grad=True)
+#         self.lin2 = torch.nn.Linear(16, out_dim)
 
+#     def forward(self):
+#         x = F.dropout(data.x, training=self.training)
+#         x = F.relu(self.lin1(x))
+#         x = self.prop1(x, edge_index)
+#         x = self.prop2(x, edge_index)
+#         x = F.dropout(x, training=self.training)
+#         x = self.lin2(x)
+#         return x
+        
 class Breadth(torch.nn.Module):
     def __init__(self, in_dim, out_dim):
         super(Breadth, self).__init__()
-        self.gatconv = GATConv(in_dim, out_dim, heads=1)#这里in_dim和out_dim都=dim=256
-        # self.gatconv = GATConv(256, 256, heads=1)
+        self.lin1 = torch.nn.Linear(in_dim, 16)
+        self.prop1 = AGNNConv(requires_grad=False)
+        self.prop2 = AGNNConv(requires_grad=True)
+        self.lin2 = torch.nn.Linear(16, out_dim)
+        # self.gatconv = AGNNConv(requires_grad=True)
 
     def forward(self, x, edge_index):
-        x = torch.tanh(self.gatconv(x, edge_index))
+#         x = F.dropout(x, training=self.training)
+        x = F.relu(self.lin1(x))
+        x = self.prop1(x, edge_index)
+        x = self.prop2(x, edge_index)
+#         x = F.dropout(x, training=self.training)
+        x = self.lin2(x)
+        # x = torch.tanh(self.gatconv(x, edge_index))
+        x = torch.tanh(x)
         return x
+
 
 
 class Depth(torch.nn.Module):
@@ -140,16 +170,10 @@ def test(loader):
     y, pred = torch.cat(ys, dim=0).numpy(), torch.cat(preds, dim=0).numpy()
     return f1_score(y, pred, average='micro') if pred.sum() > 0 else 0
 
-losslist=[]
+
 for epoch in range(1, 101):
     loss = train()
-    losslist.append(loss)
     val_f1 = test(val_loader)
     test_f1 = test(test_loader)
     print('Epoch: {:02d}, Loss: {:.4f}, Val: {:.4f}, Test: {:.4f}'.format(
         epoch, loss, val_f1, test_f1))
-from matplotlib import pyplot as plt 
-# %matplotlib inline
-
-plt.plot(losslist)
-plt.show()
