@@ -5,6 +5,8 @@ import torch
 from torch_geometric.datasets import PPI
 from torch_geometric.data import DataLoader
 from torch_geometric.nn import GATConv
+from torch_geometric.nn import SGConv
+
 from sklearn.metrics import f1_score
 
 parser = argparse.ArgumentParser()
@@ -28,7 +30,7 @@ layer_num = 4
 class Breadth(torch.nn.Module):
     def __init__(self, in_dim, out_dim):
         super(Breadth, self).__init__()
-        self.gatconv = GATConv(in_dim, out_dim, heads=1)#这里in_dim和out_dim都=dim=256
+        self.gatconv = SGConv(in_dim, out_dim)#, K=2,cached=True)#这里in_dim和out_dim都=dim=256
         # self.gatconv = GATConv(256, 256, heads=1)
 
     def forward(self, x, edge_index):
@@ -140,16 +142,10 @@ def test(loader):
     y, pred = torch.cat(ys, dim=0).numpy(), torch.cat(preds, dim=0).numpy()
     return f1_score(y, pred, average='micro') if pred.sum() > 0 else 0
 
-losslist=[]
+
 for epoch in range(1, 101):
     loss = train()
-    losslist.append(loss)
     val_f1 = test(val_loader)
     test_f1 = test(test_loader)
     print('Epoch: {:02d}, Loss: {:.4f}, Val: {:.4f}, Test: {:.4f}'.format(
         epoch, loss, val_f1, test_f1))
-from matplotlib import pyplot as plt 
-%matplotlib inline
-
-plt.plot(losslist)
-plt.show()
