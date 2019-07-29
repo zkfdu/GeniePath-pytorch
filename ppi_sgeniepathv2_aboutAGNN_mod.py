@@ -47,10 +47,10 @@ layer_num = 4
 class Breadth(torch.nn.Module):
     def __init__(self, in_dim, out_dim):
         super(Breadth, self).__init__()
-        self.lin1 = torch.nn.Linear(in_dim, 16)
+        self.lin1 = torch.nn.Linear(in_dim, out_dim)
         self.prop1 = AGNNConv(requires_grad=False)
         self.prop2 = AGNNConv(requires_grad=True)
-        self.lin2 = torch.nn.Linear(16, out_dim)
+        self.lin2 = torch.nn.Linear(out_dim, out_dim)
         # self.gatconv = AGNNConv(requires_grad=True)
 
     def forward(self, x, edge_index):
@@ -59,7 +59,7 @@ class Breadth(torch.nn.Module):
         x = self.prop1(x, edge_index)
         x = self.prop2(x, edge_index)
 #         x = F.dropout(x, training=self.training)
-        x = self.lin2(x)
+        # x = self.lin2(x)
         # x = torch.tanh(self.gatconv(x, edge_index))
         x = torch.tanh(x)
         return x
