@@ -166,7 +166,7 @@ def test():
     return accs
 
 losslist=[]
-for epoch in range(1, 500):
+for epoch in range(1, 101):
     loss = train()
     losslist.append(loss)
     # val_f1 = test(val_loader)
