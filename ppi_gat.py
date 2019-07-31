@@ -34,9 +34,9 @@ class Net(torch.nn.Module):
         return x
 
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda:2' if torch.cuda.is_available() else 'cpu')
 model = Net().to(device)
-loss_op = torch.nn.BCEWithLogitsLoss()
+loss_op = torch.nn.BCEWithLogitsLoss()#二分类的交叉熵Sigmoid-BCELoss https://blog.csdn.net/qq_22210253/article/details/85222093 https://blog.csdn.net/f156207495/article/details/88874911
 optimizer = torch.optim.Adam(model.parameters(), lr=0.005)
 
 

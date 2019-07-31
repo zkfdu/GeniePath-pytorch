@@ -36,6 +36,12 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=5e-4)
 def train():
     model.train()
     optimizer.zero_grad()
+    #损失函数NLLLoss() 的 输入 是一个对数概率向量和一个目标标签. 它不会为我们计算对数概率，
+    # 适合最后一层是log_softmax()的网络（28行）. 损失函数 CrossEntropyLoss() 与 NLLLoss() 类似, 
+    # 唯一的不同是它为我们去做 softmax.可以理解为：
+    # CrossEntropyLoss()=log_softmax() + NLLLoss() 
+
+    #model()每个点都给出预测结果，但这里只取train_mask
     F.nll_loss(model()[data.train_mask], data.y[data.train_mask]).backward()
     optimizer.step()
 
