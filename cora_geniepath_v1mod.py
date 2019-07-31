@@ -23,14 +23,14 @@ assert args.model in ['GeniePath', 'GeniePathLazy']
 # val_loader = DataLoader(val_dataset, batch_size=2, shuffle=False)
 # test_loader = DataLoader(test_dataset, batch_size=2, shuffle=False)
 
-dataset = 'Cora'
+dataset = 'Pubmed'
 path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data', dataset)
 dataset = Planetoid(path, dataset, T.NormalizeFeatures())
 data = dataset[0]
 
-dim = 1433
-lstm_hidden = 1433
-layer_num = 2#这只要超过2，就没有效果了，准确率会很低
+dim = dataset.num_features
+lstm_hidden = dataset.num_features
+layer_num = 2
 
 
 class Breadth(torch.nn.Module):
@@ -57,8 +57,8 @@ class Depth(torch.nn.Module):
 class GeniePathLayer(torch.nn.Module):
     def __init__(self, in_dim):
         super(GeniePathLayer, self).__init__()
-        self.breadth_func = Breadth(in_dim, dim)
-        self.depth_func = Depth(dim, lstm_hidden)
+        self.breadth_func = Breadth(in_dim, in_dim)
+        self.depth_func = Depth(in_dim, lstm_hidden)
 
     def forward(self, x, edge_index, h, c):
         x = self.breadth_func(x, edge_index)
@@ -71,7 +71,7 @@ class GeniePathLayer(torch.nn.Module):
 class GeniePath(torch.nn.Module):
     def __init__(self, in_dim, out_dim):
         super(GeniePath, self).__init__()
-        self.lin1 = torch.nn.Linear(in_dim, dim)
+        # self.lin1 = torch.nn.Linear(in_dim, dim)
         self.gplayers = torch.nn.ModuleList(
             [GeniePathLayer(in_dim) for i in range(layer_num)])
         self.lin2 = torch.nn.Linear(in_dim, out_dim)
@@ -166,7 +166,7 @@ def test():
     return accs
 
 losslist=[]
-for epoch in range(1, 101):
+for epoch in range(1, 500):
     loss = train()
     losslist.append(loss)
     # val_f1 = test(val_loader)
