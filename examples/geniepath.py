@@ -8,7 +8,7 @@ from torch_geometric.nn import GATConv
 from sklearn.metrics import f1_score
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', type=str, default='GeniePathLazy')
+parser.add_argument('--model', type=str, default='GeniePath')
 args = parser.parse_args()
 assert args.model in ['GeniePath', 'GeniePathLazy']
 
@@ -120,6 +120,7 @@ def train():
         data.batch = None
         data = data.to(device)
         optimizer.zero_grad()
+        hhh=model(data.x, data.edge_index)
         loss = loss_op(model(data.x, data.edge_index), data.y)
         total_loss += loss.item() * num_graphs
         loss.backward()
