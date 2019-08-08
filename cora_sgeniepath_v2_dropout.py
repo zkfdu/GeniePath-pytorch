@@ -38,8 +38,8 @@ layer_num = 3#pubmed为3效果比较好，cora不能超过2,Citeseer不能超过
 class Breadth(torch.nn.Module):
     def __init__(self, in_dim, out_dim):
         super(Breadth, self).__init__()
-        # self.gatconv = AGNNConv(requires_grad=True)
-        self.gatconv = GATConv(in_dim, out_dim,dropout=0.4, heads=1)#这里in_dim和out_dim都=dim=256
+        self.gatconv = AGNNConv(requires_grad=True)
+        # self.gatconv = GATConv(in_dim, out_dim,dropout=0.4, heads=1)#这里in_dim和out_dim都=dim=256
 
     def forward(self, x, edge_index):
         x=F.dropout(x, p=0.4, training=self.training)
